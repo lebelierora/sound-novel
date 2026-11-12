@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>るべりえサウンドノベル（試作） プロローグ「赤いコンテナのお店」</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { background:#14100d; height:100%; font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif; }
+  body { display:flex; align-items:center; justify-content:center; min-height:100dvh; }
+  #stage {
+    position:relative; width:min(100vw, 177.78dvh); aspect-ratio:16/9;
+    overflow:hidden; background:#000; touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none;
+  }
+  #bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:opacity .45s; }
+  .chara { position:absolute; bottom:19%; height:64%; object-fit:contain; transition:opacity .25s, filter .25s, transform .25s; pointer-events:none; }
+  #charaMoco { right:2.5%; }
+  #charaMaster { left:2.5%; }
+  .dim { opacity:.55; filter:brightness(.72); }
+  .hidden { opacity:0; }
+  #dialog {
+    position:absolute; left:2%; right:2%; bottom:2.2%; min-height:23%;
+    background:rgba(20,14,10,.82); border:2px solid rgba(255,235,200,.35); border-radius:14px;
+    padding:3.2% 3.5% 2.6%; color:#fff8ec; cursor:pointer;
+  }
+  #name {
+    position:absolute; top:-14px; left:18px; padding:3px 16px; border-radius:999px;
+    font-weight:700; font-size:clamp(11px,2.2vw,20px); color:#2a1c10; background:#f2c14e;
+  }
+  #name.master { background:#ef9a8a; }
+  #text { font-size:clamp(13px,2.9vw,27px); line-height:1.55; letter-spacing:.02em; }
+  #hint { position:absolute; right:14px; bottom:8px; font-size:clamp(9px,1.6vw,14px); color:#d8c9ae; animation:blink 1.6s infinite; }
+  @keyframes blink { 0%,100%{opacity:.25} 50%{opacity:.9} }
+  .overlay {
+    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:rgba(12,8,6,.55); color:#fff6e6; text-align:center; padding:4%; z-index:5;
+  }
+  .overlay h1 { font-size:clamp(20px,5vw,46px); letter-spacing:.08em; text-shadow:0 2px 14px #000; }
+  .overlay h2 { font-size:clamp(14px,3.2vw,28px); margin-top:2.2%; font-weight:600; text-shadow:0 2px 10px #000; }
+  .overlay p { margin-top:3%; font-size:clamp(11px,2.2vw,19px); color:#e9dcc2; text-shadow:0 1px 8px #000; }
+  .btn {
+    margin-top:4.5%; padding:.9em 2.6em; border:none; border-radius:999px; cursor:pointer;
+    background:#e4572e; color:#fff; font-size:clamp(14px,2.8vw,24px); font-weight:700;
+    box-shadow:0 4px 18px rgba(0,0,0,.5);
+  }
+  .btn:active { transform:scale(.97); }
+  #controls {
+    position:absolute; top:2%; right:2%; z-index:6; display:flex; gap:8px;
+  }
+  #controls button {
+    border:1px solid rgba(255,240,210,.5); background:rgba(20,14,10,.65); color:#ffeecb;
+    border-radius:999px; padding:.35em 1em; font-size:clamp(10px,1.9vw,16px); cursor:pointer;
+  }
+  #controls button.on { background:#e4572e; border-color:#e4572e; color:#fff; }
+  #progress { position:absolute; top:0; left:0; height:4px; background:#e4572e; width:0%; z-index:6; transition:width .3s; }
+  .gone { display:none !important; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <img id="bg" src="bg-day.jpg" alt="">
+  <img id="charaMaster" class="chara hidden" src="chara-master-smile.png" alt="">
+  <img id="charaMoco" class="chara" src="chara-moco-hirameki.png" alt="">
+  <div id="progress"></div>
+  <div id="controls" class="gone">
+    <button id="autoBtn" class="on">自動再生</button>
+    <button id="bgmBtn" class="on">BGM</button>
+    <button id="backBtn">◀ もどる</button>
+  </div>
+  <div id="dialog" class="gone">
+    <div id="name">モコ</div>
+    <div id="text"></div>
+    <div id="hint">タップで進む ▼</div>
+  </div>
+  <div id="titleCard" class="overlay">
+    <h1>るべりえサウンドノベル</h1>
+    <h2>プロローグ「赤いコンテナのお店」</h2>
+    <p>店主とモコが、お店のことを振り返る物語。<br>音が出ます。タップで始めてください。</p>
+    <button class="btn" id="startBtn">▶ はじめる</button>
+  </div>
+  <div id="endCard" class="overlay gone">
+    <h1>つづく</h1>
+    <h2>第一章「店名の由来」</h2>
+    <p>試作はここまで。読んでくれてありがとうございました。</p>
+    <button class="btn" id="replayBtn">↺ もう一度</button>
+  </div>
+  <audio id="voice" preload="auto"></audio>
+  <audio id="bgm" src="bgm.mp3" preload="auto" loop></audio>
+</div>
+<script>
+const LINES = [
+ {sp:"moco",expr:"hirameki",bg:"day",text:"こんにちは！アシスタントのモコです。今日はこのお店、るべりえを案内します！"},
+ {sp:"moco",expr:"normal",bg:"day",text:"ここは群馬県邑楽町。赤いコンテナが目印の、創作ピザとスイーツのお店です！"},
+ {sp:"master",expr:"smile",bg:"day",text:"いらっしゃい！るべりえの中村です。よく来たね、モコ！"},
+ {sp:"moco",expr:"surprise",bg:"day",text:"中村さん！今日はお店のことを、はじめから全部教えてください！"},
+ {sp:"master",expr:"wry",bg:"day",text:"全部？はじめから話すと、長ーい話になるよ。"},
+ {sp:"moco",expr:"laugh",bg:"day",text:"大丈夫です！何回にも分けて、ゆっくり聞くので！"},
+ {sp:"master",expr:"warm",bg:"day",text:"はは、ありがとう。じゃあまず、このお店の紹介からだね。"},
+ {sp:"master",expr:"craft",bg:"interior",text:"奥の厨房で毎日ピザを焼いているんだ。名物の揚げピザもあるよ！"},
+ {sp:"moco",expr:"surprise",bg:"interior",text:"揚げピザ！…あと、冷凍のピザもあるんですよね？"},
+ {sp:"master",expr:"serious",bg:"interior",text:"うん。マイナス三十五度で急速冷凍して、できたての味を閉じ込めてる。ピザ生地には群馬県産小麦100%使っている。それがうちの自慢だよ。"},
+ {sp:"master",expr:"genki",bg:"interior",text:"あと、スイーツも忘れずに。もともとパティシエだから、スイーツピザも本気だよ。"},
+ {sp:"moco",expr:"laugh",bg:"interior",text:"ピザもスイーツも！欲張りなお店ですね！"},
+ {sp:"moco",expr:"normal",bg:"evening",text:"今日の案内はここまで！"},
+ {sp:"master",expr:"warm",bg:"evening",text:"このお店も今年で十年目。…いろんなことがあったよ。"},
+ {sp:"moco",expr:"hirameki",bg:"evening",text:"その「いろんなこと」、次から一つずつ、ぜーんぶ聞かせてくださいね！"},
+ {sp:"master",expr:"smile",bg:"evening",text:"任せて。次は店名の由来。るべりえ、ってどういう意味か知ってる？"},
+ {sp:"moco",expr:"surprise",bg:"evening",text:"えっ、名前に意味が！？…知らないです！"},
+ {sp:"master",expr:"laugh",bg:"evening",text:"あるんだな、これが。続きは第一章で！"}
+];
+const BG = { day:"bg-day.jpg", interior:"bg-interior.jpg", evening:"bg-evening.jpg" };
+const NAME = { moco:"モコ", master:"中村" };
+const stage = document.getElementById('stage');
+const bgEl = document.getElementById('bg');
+const mocoEl = document.getElementById('charaMoco');
+const masterEl = document.getElementById('charaMaster');
+const dialog = document.getElementById('dialog');
+const nameEl = document.getElementById('name');
+const textEl = document.getElementById('text');
+const voice = document.getElementById('voice');
+const bgm = document.getElementById('bgm');
+const autoBtn = document.getElementById('autoBtn');
+const bgmBtn = document.getElementById('bgmBtn');
+const BGM_BASE = 0.30, BGM_DUCK = 0.09;
+let idx = -1, auto = true, started = false, bgmOn = true, bgmTimer = null;
+
+function fadeBgm(target){
+  if (bgmTimer) clearInterval(bgmTimer);
+  const from = bgm.volume;
+  let step = 0;
+  bgmTimer = setInterval(()=>{
+    step++;
+    bgm.volume = Math.max(0, Math.min(1, from + (target - from) * step / 12));
+    if (step >= 12){ clearInterval(bgmTimer); bgmTimer = null; }
+  }, 30);
+}
+function playBgm(duck){
+  if (!bgmOn) return;
+  if (bgm.paused) bgm.play().catch(()=>{});
+  fadeBgm(duck ? BGM_DUCK : BGM_BASE);
+}
+
+function masterPresent(i){ return i >= 2; }
+function show(i){
+  const L = LINES[i];
+  bgEl.src = BG[L.bg];
+  if (L.sp==="moco"){ mocoEl.src = "chara-moco-"+L.expr+".png"; }
+  if (L.sp==="master"){ masterEl.src = "chara-master-"+L.expr+".png"; }
+  mocoEl.classList.toggle('hidden', false);
+  masterEl.classList.toggle('hidden', !masterPresent(i));
+  mocoEl.classList.toggle('dim', L.sp!=="moco");
+  masterEl.classList.toggle('dim', L.sp!=="master");
+  nameEl.textContent = NAME[L.sp];
+  nameEl.classList.toggle('master', L.sp==="master");
+  textEl.textContent = L.text;
+  document.getElementById('progress').style.width = ((i+1)/LINES.length*100)+"%";
+  voice.src = "line" + String(i).padStart(2,'0') + ".mp3";
+  voice.currentTime = 0;
+  voice.play().catch(()=>{});
+  playBgm(true);
+}
+function next(){
+  if (!started) return;
+  if (idx >= LINES.length-1){
+    voice.pause();
+    playBgm(false);
+    dialog.classList.add('gone');
+    document.getElementById('controls').classList.add('gone');
+    mocoEl.classList.add('hidden'); masterEl.classList.add('hidden');
+    bgEl.src = BG.evening;
+    document.getElementById('endCard').classList.remove('gone');
+    document.getElementById('progress').style.width = "100%";
+    return;
+  }
+  idx++; show(idx);
+}
+voice.addEventListener('ended', ()=>{ if (auto) next(); else playBgm(false); });
+document.getElementById('startBtn').addEventListener('click', ()=>{
+  document.getElementById('titleCard').classList.add('gone');
+  dialog.classList.remove('gone');
+  document.getElementById('controls').classList.remove('gone');
+  bgm.currentTime = 0; bgm.volume = 0; playBgm(false);
+  started = true; idx = -1; next();
+});
+document.getElementById('replayBtn').addEventListener('click', ()=>{
+  document.getElementById('endCard').classList.add('gone');
+  dialog.classList.remove('gone');
+  document.getElementById('controls').classList.remove('gone');
+  bgm.currentTime = 0; bgm.volume = 0; playBgm(false);
+  mocoEl.dataset.expr="moco-normal"; started = true; idx = -1; next();
+});
+dialog.addEventListener('click', ()=>{ next(); });
+autoBtn.addEventListener('click', (e)=>{ e.stopPropagation(); auto=!auto; autoBtn.classList.toggle('on', auto); if (auto && voice.ended) next(); });
+bgmBtn.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  bgmOn = !bgmOn;
+  bgmBtn.classList.toggle('on', bgmOn);
+  if (bgmOn) playBgm(!(voice.paused || voice.ended));
+  else { fadeBgm(0); setTimeout(()=>{ if (!bgmOn) bgm.pause(); }, 400); }
+});
+document.getElementById('backBtn').addEventListener('click', (e)=>{ e.stopPropagation(); if (idx>0){ idx--; show(idx); } });
+stage.addEventListener('pointerdown', ()=>{
+  if (voice.paused && started && idx >= 0 && idx < LINES.length) voice.play().catch(()=>{});
+  if (started && bgmOn && bgm.paused) playBgm(!(voice.paused || voice.ended));
+});
+</script>
+</body>
+</html>
