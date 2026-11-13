@@ -180,7 +180,7 @@ function startChapter(n){
   document.getElementById('endCard').classList.add('gone');
   dialog.classList.remove('gone');
   document.getElementById('controls').classList.remove('gone');
-  bgm.currentTime = 0; bgm.volume = 0; playBgm(false);
+  bgm.currentTime = 0; bgm.volume = 0; playBgm(true);
   started = true; idx = -1; next();
 }
 document.getElementById('startBtn0').addEventListener('click', ()=>startChapter(0));
@@ -189,7 +189,7 @@ document.getElementById('replayBtn').addEventListener('click', ()=>{
   document.getElementById('endCard').classList.add('gone');
   dialog.classList.remove('gone');
   document.getElementById('controls').classList.remove('gone');
-  bgm.currentTime = 0; bgm.volume = 0; playBgm(false);
+  bgm.currentTime = 0; bgm.volume = 0; playBgm(true);
   started = true; idx = -1; next();
 });
 document.getElementById('homeBtn').addEventListener('click', ()=>{
