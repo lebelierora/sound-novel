@@ -61,6 +61,9 @@
     padding:.45em .9em; font-size:clamp(10px,1.9vw,17px); line-height:1.4;
   }
   .gone { display:none !important; }
+  #titleCard h1 { font-size:clamp(18px,4.4vw,40px); }
+  #titleCard p { margin-top:1.2%; font-size:clamp(10px,2vw,17px); }
+  #titleCard .btn { margin-top:2%; padding:9px 20px; font-size:clamp(12px,2.3vw,20px); }
 </style>
 </head>
 <body>
@@ -85,6 +88,7 @@
     <p>店主とモコが、お店のことを振り返る物語。<br>音が出ます。読みたい章を選んでください。</p>
     <button class="btn" id="startBtn0">▶ プロローグ「赤いコンテナのお店」</button>
     <button class="btn" id="startBtn1">▶ 第一章「店名の由来」</button>
+    <button class="btn" id="startBtn2">▶ 第二章「原風景」</button>
   </div>
   <div id="endCard" class="overlay gone">
     <h1>つづく</h1>
@@ -187,6 +191,7 @@ function startChapter(n){
 }
 document.getElementById('startBtn0').addEventListener('click', ()=>startChapter(0));
 document.getElementById('startBtn1').addEventListener('click', ()=>startChapter(1));
+document.getElementById('startBtn2').addEventListener('click', ()=>startChapter(2));
 document.getElementById('replayBtn').addEventListener('click', ()=>{
   document.getElementById('endCard').classList.add('gone');
   dialog.classList.remove('gone');
