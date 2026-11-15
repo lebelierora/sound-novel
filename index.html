@@ -46,6 +46,7 @@
   }
   .btn.sub { background:rgba(20,14,10,.7); border:1px solid rgba(255,240,210,.6); color:#ffeecb; }
   .btn:active { transform:scale(.97); }
+  a.btn { text-decoration:none; display:inline-block; }
   #controls {
     position:absolute; top:2%; right:2%; z-index:6; display:flex; gap:8px;
   }
@@ -90,6 +91,7 @@
     <button class="btn" id="startBtn1">▶ 第一章「店名の由来」</button>
     <button class="btn" id="startBtn2">▶ 第二章「原風景」</button>
     <button class="btn" id="startBtn3">▶ 第三章「初めてのケーキ」</button>
+    <a class="btn sub" href="https://lebelierora.github.io/intro/">🏠 お店「るべりえ」の紹介ページ</a>
   </div>
   <div id="endCard" class="overlay gone">
     <h1>つづく</h1>
@@ -97,6 +99,7 @@
     <p>読んでくれてありがとうございました。</p>
     <button class="btn" id="replayBtn">↺ もう一度</button>
     <button class="btn sub" id="homeBtn">章を選ぶ</button>
+    <a class="btn sub" href="https://lebelierora.github.io/intro/">🏠 お店の紹介ページへ</a>
   </div>
   <audio id="voice" preload="auto"></audio>
   <audio id="bgm" src="bgm-bed.mp3" preload="auto" loop></audio>
