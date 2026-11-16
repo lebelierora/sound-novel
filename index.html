@@ -168,6 +168,10 @@ function show(i){
   nameEl.textContent = NAME[L.sp];
   nameEl.classList.toggle('master', L.sp==="master");
   textEl.textContent = L.text;
+  textEl.style.fontSize = '';
+  const cs = parseFloat(getComputedStyle(textEl).fontSize);
+  const nLines = Math.round(textEl.offsetHeight / (cs * 1.55));
+  if (nLines >= 3) textEl.style.fontSize = Math.floor(cs * 2.0 / nLines) + 'px';
   document.getElementById('progress').style.width = ((i+1)/LINES.length*100)+"%";
   voice.src = CH.dir + "line" + String(i).padStart(2,'0') + ".mp3";
   voice.currentTime = 0;
